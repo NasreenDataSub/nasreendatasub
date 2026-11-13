@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1258c8">\n<link rel="manifest" href="./manifest.webmanifest">\n<link rel="icon" href="./icon-192.png">
+<title>NASREENDATASUB</title>
+<style>
+:root{--blue:#1258c8;--navy:#092d68;--pale:#edf4ff;--ink:#17243a;--muted:#6c7890;--line:#e4eaf3}
+*{box-sizing:border-box}body{margin:0;background:#f4f7fc;color:var(--ink);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:linear-gradient(135deg,var(--navy),var(--blue));color:white;padding:22px 18px 26px;border-radius:0 0 24px 24px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-weight:850;letter-spacing:.4px;font-size:18px}.tag{font-size:11px;background:#ffffff24;padding:6px 9px;border-radius:20px}
+main{max-width:650px;margin:auto;padding:0 14px 100px}.balance{margin-top:-12px;background:white;border-radius:18px;padding:18px;box-shadow:0 8px 24px #183d7112}
+.small{color:var(--muted);font-size:12px}.amount{font-size:30px;font-weight:800;margin:4px 0 12px}.actions{display:flex;gap:9px}.btn{border:0;border-radius:12px;padding:12px 15px;font-weight:700;background:var(--blue);color:white;cursor:pointer}.btn.light{background:var(--pale);color:var(--blue)}.btn.full{width:100%;margin-top:12px}
+h2{font-size:17px;margin:22px 2px 11px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.service{background:white;border:1px solid var(--line);border-radius:16px;padding:15px;text-align:left;cursor:pointer;color:var(--ink)}.emoji{font-size:25px}.service b{display:block;margin-top:8px}.service span:last-child{font-size:12px;color:var(--muted)}
+.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:15px;margin-top:12px}.field{display:block;margin:10px 0}.field span{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}input,select{width:100%;padding:13px;border:1px solid #d8e1ef;border-radius:11px;background:#fff;font:inherit;color:var(--ink)}.notice{font-size:12px;color:#805b00;background:#fff7df;padding:10px;border-radius:10px;margin-top:12px}
+.tx{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}.tx:last-child{border:0}.positive{color:#16824b}.negative{color:#b34b37}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:9px 4px calc(9px + env(safe-area-inset-bottom));z-index:4}nav button{border:0;background:none;color:var(--muted);font-size:11px;padding:5px;cursor:pointer}nav b{display:block;font-size:19px}
+.view{display:none}.view.active{display:block}.hidden{display:none!important}
+footer{text-align:center;color:var(--muted);font-size:11px;margin:24px 0}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="brand">NASREEN<span style="color:#9dc5ff">DATA</span>SUB</div><div class="tag">MOBILE DEMO</div></div><p style="margin:12px 0 0;color:#dbe8ff;font-size:13px">Welcome to your data and bill payment dashboard</p></header>
+<main>
+<section id="home" class="view active">
+<div class="balance"><div class="small">Demo wallet balance</div><div class="amount" id="balance">₦5,000.00</div><div class="actions"><button class="btn" onclick="show('fund')">＋ Add demo funds</button><button class="btn light" onclick="show('history')">History</button></div></div>
+<h2>Our Services</h2>
+<div class="grid">
+<button class="service" onclick="service('Airtime')"><span class="emoji">📱</span><b>Airtime</b><span>Top up mobile line</span></button>
+<button class="service" onclick="service('Data')"><span class="emoji">🌐</span><b>Data</b><span>Buy data bundles</span></button>
+<button class="service" onclick="service('Electricity')"><span class="emoji">💡</span><b>Electricity</b><span>Pay electricity bills</span></button>
+<button class="service" onclick="service('Cable TV')"><span class="emoji">📺</span><b>Cable TV</b><span>Renew subscriptions</span></button>
+<button class="service" onclick="service('Education PIN')"><span class="emoji">🎓</span><b>Education PIN</b><span>Exam and education PINs</span></button>
+</div>
+<div class="notice">Demo only: purchases and wallet funding are simulated. No real airtime, data, electricity token, PIN, or payment is issued.</div>
+</section>
+<section id="fund" class="view">
+<h2>Add demo funds</h2><div class="panel"><label class="field"><span>Amount (₦)</span><input id="fundAmount" type="number" min="100" placeholder="e.g. 2000"></label><button class="btn full" onclick="fund()">Add to demo wallet</button><p class="small">This only changes the sample balance stored on this phone. It does not collect money.</p></div>
+</section>
+<section id="buy" class="view">
+<h2 id="buyTitle">Make a purchase</h2><div class="panel">
+<label class="field"><span>Service</span><select id="kind"><option>Airtime</option><option>Data</option><option>Electricity</option><option>Cable TV</option><option>Education PIN</option></select></label>
+<label class="field"><span>Phone number / Smartcard / Meter / Customer reference</span><input id="recipient" inputmode="numeric" placeholder="Enter reference"></label>
+<label class="field"><span>Network / Provider (demo)</span><select id="provider"><option>MTN</option><option>Airtel</option><option>Glo</option><option>9mobile</option><option>IKEJA Electric</option><option>Abuja Electric</option><option>DStv</option><option>GOtv</option><option>Startimes</option><option>WAEC</option><option>JAMB</option></select></label>
+<label class="field"><span>Amount (₦)</span><input id="buyAmount" type="number" min="50" placeholder="Enter amount"></label>
+<button class="btn full" onclick="purchase()">Continue (demo)</button></div>
+<div class="notice">Demo transaction only. Do not enter sensitive personal or payment details.</div>
+</section>
+<section id="history" class="view"><h2>Transaction history</h2><div class="panel" id="transactions"><p class="small">No transactions yet.</p></div></section>
+<section id="profile" class="view"><h2>Account</h2><div class="panel"><b>NASREENDATASUB</b><p class="small">Mobile demo account</p><p>Language: English</p><p>Theme: Blue &amp; White</p><button class="btn light" onclick="resetDemo()">Reset demo data</button></div><div class="notice">This is a prototype, not a live VTU business. Live services require a verified provider, secure backend, and approved payment integration.</div></section>
+</main>
+<nav><button onclick="show('home')"><b>⌂</b>Home</button><button onclick="show('buy')"><b>＋</b>Buy</button><button onclick="show('fund')"><b>▣</b>Wallet</button><button onclick="show('history')"><b>↻</b>History</button><button onclick="show('profile')"><b>☻</b>Account</button></nav>
+<script>
+const KEY='nasreendatasub_mobile_demo_v1';
+let state=JSON.parse(localStorage.getItem(KEY)||'null')||{balance:5000,tx:[]};
+function save(){localStorage.setItem(KEY,JSON.stringify(state));render()}
+function money(n){return '₦'+Number(n).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function show(id){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');render()}
+function service(name){document.getElementById('kind').value=name;show('buy')}
+function fund(){let n=Number(document.getElementById('fundAmount').value);if(!Number.isFinite(n)||n<100)return alert('Enter an amount of at least ₦100.');state.balance+=n;state.tx.unshift({type:'Demo wallet credit',ref:'Demo funding',amount:n,date:new Date().toLocaleString()});document.getElementById('fundAmount').value='';save();show('home');alert('Demo funds added to your sample wallet.')}
+function purchase(){let type=document.getElementById('kind').value,ref=document.getElementById('recipient').value.trim(),provider=document.getElementById('provider').value,n=Number(document.getElementById('buyAmount').value);if(!ref||!Number.isFinite(n)||n<50)return alert('Enter the reference and an amount of at least ₦50.');if(n>state.balance)return alert('Insufficient demo wallet balance. Add demo funds first.');state.balance-=n;state.tx.unshift({type:'Demo '+type,ref:provider+' • '+ref,amount:-n,date:new Date().toLocaleString()});save();document.getElementById('recipient').value='';document.getElementById('buyAmount').value='';show('history');alert('Demo request recorded. No real service was delivered.')}
+function render(){document.getElementById('balance').textContent=money(state.balance);let el=document.getElementById('transactions');el.innerHTML=state.tx.length?state.tx.map(t=>`<div class="tx"><div><b>${escapeHtml(t.type)}</b><div class="small">${escapeHtml(t.ref)}<br>${escapeHtml(t.date)}</div></div><b class="${t.amount>0?'positive':'negative'}">${t.amount>0?'+':''}${money(t.amount)}</b></div>`).join(''):'<p class="small">No transactions yet.</p>'}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function resetDemo(){if(confirm('Reset the demo wallet and transaction history on this phone?')){state={balance:5000,tx:[]};save();show('home')}}
+render();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+}
+</script>
+</body></html>
