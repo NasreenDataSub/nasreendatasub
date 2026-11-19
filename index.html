@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0757c8">
-<meta name="description" content="NASREENDATASUB VTU demo app">
+<meta name="description" content="NASREENDATASUB VTU app">
 <link rel="manifest" href="manifest.webmanifest">
 <title>NASREENDATASUB</title>
 <style>
@@ -26,46 +26,54 @@ input{width:100%;padding:13px;border:1px solid #d6deed;border-radius:10px;margin
 nav{display:flex;gap:8px;margin:16px 0}nav button{flex:1;padding:11px 5px}
 .notice{background:#fff6df;color:#76520b;padding:11px;border-radius:10px;font-size:12px;line-height:1.5;margin-top:14px}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
+.status{font-size:13px;line-height:1.5;margin:10px 0;color:var(--muted);overflow-wrap:anywhere}
 </style>
 </head>
 <body>
 <header><div class="top"><div><div class="brand">NASREENDATASUB</div><div class="tag">Fast • Simple • Reliable</div></div><div>💠</div></div><p>Welcome to your VTU service demo</p></header>
 <main>
 <section class="balance"><div class="small">DEMO WALLET BALANCE</div><div class="amount" id="balance">₦0.00</div><div class="row"><button onclick="demoFund()">Add demo funds</button><button class="secondary" onclick="showPage('transactions')">Transactions</button></div></section>
-<nav><button onclick="showPage('home')">Home</button><button onclick="showPage('profile')">Profile</button><button onclick="showPage('transactions')">History</button></nav>
-<section id="home">
-<h2>Our Services</h2><div class="grid">
+<nav><button onclick="showPage('home')">Home</button><button onclick="showPage('profile')">Account</button><button onclick="showPage('transactions')">History</button></nav>
+<section id="home"><h2>Our Services</h2><div class="grid">
 <button class="service" onclick="buy('Airtime')"><span class="emoji">📱</span><b>Airtime</b><span class="small">Demo purchase</span></button>
 <button class="service" onclick="buy('Data')"><span class="emoji">🌐</span><b>Data</b><span class="small">Demo purchase</span></button>
 <button class="service" onclick="buy('Electricity')"><span class="emoji">💡</span><b>Electricity</b><span class="small">Demo purchase</span></button>
 <button class="service" onclick="buy('Cable TV')"><span class="emoji">📺</span><b>Cable TV</b><span class="small">Demo purchase</span></button>
 <button class="service" onclick="buy('Education PIN')"><span class="emoji">🎓</span><b>Education PIN</b><span class="small">Demo purchase</span></button>
-</div>
-<div class="notice">Demo only: no real airtime, data, electricity token, cable subscription or examination PIN is delivered. Demo wallet funds are not real money.</div>
-</section>
-<section id="profile" class="hidden">
-<h2>Customer Profile</h2><div class="panel">
-<div id="profileStatus" class="small">You are using the guest demo.</div>
-<label>Full name</label><input id="fullName" placeholder="Enter your name">
-<label>Email address</label><input id="email" type="email" placeholder="Enter your email">
-<label>Password</label><input id="password" type="password" placeholder="Create a demo password">
-<div class="row"><button onclick="demoAuth()">Demo Register / Login</button><button class="secondary" onclick="logout()">Log out</button></div>
-<p class="small">This is a local demo profile saved only in this browser. It is not secure server-based account registration.</p>
+</div><div class="notice">Demo only: no real airtime, data, electricity token, cable subscription or examination PIN is delivered. Demo wallet funds are not real money.</div></section>
+<section id="profile" class="hidden"><h2>Customer Account</h2><div class="panel">
+<div id="authStatus" class="status">Checking account status…</div>
+<label>Full name (for new registration)</label><input id="fullName" autocomplete="name" placeholder="Enter your full name">
+<label>Email address</label><input id="email" type="email" autocomplete="email" placeholder="Enter your email">
+<label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Enter password (8+ characters)">
+<div class="row"><button id="registerBtn" onclick="registerAccount()">Create account</button><button class="secondary" id="loginBtn" onclick="loginAccount()">Sign in</button><button class="secondary hidden" id="logoutBtn" onclick="logoutAccount()">Sign out</button></div>
+<p class="small">Account registration and sign-in use Supabase Authentication. If email confirmation is enabled, check your email to confirm your account. Never reuse an important password.</p>
 </div></section>
 <section id="transactions" class="hidden"><h2>Transaction History</h2><div class="panel" id="history"><div class="small">No transactions yet.</div></div></section>
 </main><footer>NASREENDATASUB • Demo version</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-let wallet=Number(localStorage.getItem('nds_wallet')||0);
-let tx=JSON.parse(localStorage.getItem('nds_tx')||'[]');
+// Replace the placeholder below with your Supabase Publishable key only.
+// Never put a Supabase Secret key in this public website.
+const SUPABASE_URL = "https://omgvgsuymgghzixpeqyw.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+let supabaseClient = null;
+if (window.supabase && SUPABASE_PUBLISHABLE_KEY !== "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE") {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+}
+let wallet=Number(localStorage.getItem('nds_wallet')||0),tx=JSON.parse(localStorage.getItem('nds_tx')||'[]');
 function money(n){return '₦'+Number(n).toFixed(2)}
 function render(){document.getElementById('balance').textContent=money(wallet);let h=document.getElementById('history');h.innerHTML=tx.length?tx.slice().reverse().map(x=>`<div class="item"><b>${x.name}</b><br><span class="small">${x.date}</span><br>${money(x.amount)} • ${x.status}</div>`).join(''):'<div class="small">No transactions yet.</div>'}
 function save(){localStorage.setItem('nds_wallet',wallet);localStorage.setItem('nds_tx',JSON.stringify(tx));render()}
-function showPage(p){['home','profile','transactions'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==p));}
+function showPage(p){['home','profile','transactions'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==p))}
 function demoFund(){let a=1000;wallet+=a;tx.push({name:'Demo wallet funding',amount:a,status:'Demo only',date:new Date().toLocaleString()});save();alert('₦1,000 demo funds added. No real money was moved.')}
 function buy(name){let raw=prompt('Enter demo amount for '+name+' (₦):');if(raw===null)return;let a=Number(raw);if(!Number.isFinite(a)||a<=0){alert('Enter a valid amount.');return}if(a>wallet){alert('Insufficient demo balance. Add demo funds first.');return}wallet-=a;tx.push({name,amount:a,status:'Simulated — not delivered',date:new Date().toLocaleString()});save();alert('Demo request recorded. No real service was purchased.')}
-function demoAuth(){let n=document.getElementById('fullName').value.trim(),e=document.getElementById('email').value.trim(),p=document.getElementById('password').value;if(!n||!e||!p){alert('Please enter your name, email and a demo password.');return}localStorage.setItem('nds_profile',JSON.stringify({name:n,email:e}));document.getElementById('profileStatus').textContent='Demo profile: '+n+' ('+e+')';alert('Demo profile saved on this browser only.')}
-function logout(){localStorage.removeItem('nds_profile');document.getElementById('profileStatus').textContent='You are using the guest demo.';document.getElementById('fullName').value='';document.getElementById('email').value='';document.getElementById('password').value=''}
-try{let u=JSON.parse(localStorage.getItem('nds_profile')||'null');if(u){document.getElementById('profileStatus').textContent='Demo profile: '+u.name+' ('+u.email+')';document.getElementById('fullName').value=u.name;document.getElementById('email').value=u.email}}catch(e){}
-render();if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+function authMessage(s){document.getElementById('authStatus').textContent=s}
+function setUser(user){if(!user){authMessage('You are not signed in. Create an account or sign in below.');['registerBtn','loginBtn'].forEach(id=>document.getElementById(id).classList.remove('hidden'));document.getElementById('logoutBtn').classList.add('hidden');return}authMessage('Signed in as: '+(user.user_metadata?.full_name||user.email)+' ('+user.email+')');['registerBtn','loginBtn'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('logoutBtn').classList.remove('hidden')}
+async function registerAccount(){if(!supabaseClient){authMessage('Supabase key has not been added yet.');return}let name=document.getElementById('fullName').value.trim(),email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;if(!name||!email||password.length<8){authMessage('Enter your name, valid email and password of at least 8 characters.');return}let {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:location.origin+location.pathname}});if(error){authMessage(error.message);return}if(data.session){setUser(data.user);authMessage('Account created and signed in.')}else authMessage('Registration received. Check your email for a confirmation link.')}
+async function loginAccount(){if(!supabaseClient){authMessage('Supabase key has not been added yet.');return}let email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;if(!email||!password){authMessage('Enter your email and password.');return}let {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){authMessage(error.message);return}setUser(data.user)}
+async function logoutAccount(){if(!supabaseClient)return;let {error}=await supabaseClient.auth.signOut();if(error){authMessage(error.message);return}setUser(null)}
+async function initAuth(){if(!supabaseClient){authMessage('Supabase connection is prepared. Add your Publishable key in this file.');return}let {data:{session}}=await supabaseClient.auth.getSession();setUser(session?.user||null);supabaseClient.auth.onAuthStateChange((_event,s)=>setUser(s?.user||null))}
+render();initAuth();if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 </script>
 </body></html>
