@@ -69,7 +69,33 @@ function showPage(p){['home','profile','transactions'].forEach(x=>document.getEl
 function demoFund(){let a=1000;wallet+=a;tx.push({name:'Demo wallet funding',amount:a,status:'Demo only',date:new Date().toLocaleString()});save();alert('₦1,000 demo funds added. No real money was moved.')}
 function buy(name){let raw=prompt('Enter demo amount for '+name+' (₦):');if(raw===null)return;let a=Number(raw);if(!Number.isFinite(a)||a<=0){alert('Enter a valid amount.');return}if(a>wallet){alert('Insufficient demo balance. Add demo funds first.');return}wallet-=a;tx.push({name,amount:a,status:'Simulated — not delivered',date:new Date().toLocaleString()});save();alert('Demo request recorded. No real service was purchased.')}
 function authMessage(s){document.getElementById('authStatus').textContent=s}
-function setUser(user){if(!user){authMessage('You are not signed in. Create an account or sign in below.');['registerBtn','loginBtn'].forEach(id=>document.getElementById(id).classList.remove('hidden'));document.getElementById('logoutBtn').classList.add('hidden');return}authMessage('Signed in as: '+(user.user_metadata?.full_name||user.email)+' ('+user.email+')');['registerBtn','loginBtn'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('logoutBtn').classList.remove('hidden')}
+function setUser(user){
+  if(!user){
+    authMessage('You are not signed in. Create an account or sign in below.');
+    ['registerBtn','loginBtn'].forEach(id=>
+      document.getElementById(id).classList.remove('hidden')
+    );
+    document.getElementById('logoutBtn').classList.add('hidden');
+    return;
+  }
+
+  document.getElementById('fullName').value =
+    user.user_metadata?.full_name || '';
+
+  document.getElementById('email').value =
+    user.email || '';
+
+  authMessage('Signed in as: '+
+    (user.user_metadata?.full_name || user.email)+
+    ' ('+user.email+')'
+  );
+
+  ['registerBtn','loginBtn'].forEach(id=>
+    document.getElementById(id).classList.add('hidden')
+  );
+
+  document.getElementById('logoutBtn').classList.remove('hidden');
+}
 async function registerAccount(){if(!supabaseClient){authMessage('Supabase key has not been added yet.');return}let name=document.getElementById('fullName').value.trim(),email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;if(!name||!email||password.length<8){authMessage('Enter your name, valid email and password of at least 8 characters.');return}let {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:location.origin+location.pathname}});if(error){authMessage(error.message);return}if(data.session){setUser(data.user);authMessage('Account created and signed in.')}else authMessage('Registration received. Check your email for a confirmation link.')}
 async function loginAccount(){if(!supabaseClient){authMessage('Supabase key has not been added yet.');return}let email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;if(!email||!password){authMessage('Enter your email and password.');return}let {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){authMessage(error.message);return}setUser(data.user)}
 async function logoutAccount(){if(!supabaseClient)return;let {error}=await supabaseClient.auth.signOut();if(error){authMessage(error.message);return}setUser(null)}
