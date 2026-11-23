@@ -67,7 +67,82 @@ function render(){document.getElementById('balance').textContent=money(wallet);l
 function save(){localStorage.setItem('nds_wallet',wallet);localStorage.setItem('nds_tx',JSON.stringify(tx));render()}
 function showPage(p){['home','profile','transactions'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==p))}
 function demoFund(){let a=1000;wallet+=a;tx.push({name:'Demo wallet funding',amount:a,status:'Demo only',date:new Date().toLocaleString()});save();alert('₦1,000 demo funds added. No real money was moved.')}
-function buy(name){let raw=prompt('Enter demo amount for '+name+' (₦):');if(raw===null)return;let a=Number(raw);if(!Number.isFinite(a)||a<=0){alert('Enter a valid amount.');return}if(a>wallet){alert('Insufficient demo balance. Add demo funds first.');return}wallet-=a;tx.push({name,amount:a,status:'Simulated — not delivered',date:new Date().toLocaleString()});save();alert('Demo request recorded. No real service was purchased.')}
+
+function buy(name){
+  if(name === 'Airtime'){
+    let network=prompt('Enter network: MTN, Airtel, Glo or 9mobile');
+    if(network===null)return;
+
+    network=network.trim();
+    let allowed=['MTN','Airtel','Glo','9mobile'];
+
+    if(!allowed.some(n=>n.toLowerCase()===network.toLowerCase())){
+      alert('Invalid network selected.');
+      return;
+    }
+
+    let phone=prompt('Enter customer phone number:');
+    if(phone===null)return;
+
+    phone=phone.trim();
+    if(!/^0[0-9]{10}$/.test(phone)){
+      alert('Enter a valid 11-digit phone number.');
+      return;
+    }
+
+    let raw=prompt('Enter Airtime amount (₦):');
+    if(raw===null)return;
+
+    let a=Number(raw);
+    if(!Number.isFinite(a)||a<=0){
+      alert('Enter a valid amount.');
+      return;
+    }
+
+    if(a>wallet){
+      alert('Insufficient demo balance.');
+      return;
+    }
+
+    if(!confirm('Confirm Airtime purchase?\nNetwork: '+network+'\nPhone: '+phone+'\nAmount: ₦'+a)){
+      return;
+    }
+
+    wallet-=a;
+    tx.push({
+      name:'Airtime - '+network+' - '+phone,
+      amount:a,
+      status:'Demo only - not delivered',
+      date:new Date().toLocaleString()
+    });
+
+    save();
+    alert('Airtime demo transaction recorded. No real airtime was delivered.');
+    return;
+  }
+
+  let raw=prompt('Enter demo amount for '+name+' (₦):');
+  if(raw===null)return;
+  let a=Number(raw);
+  if(!Number.isFinite(a)||a<=0){
+    alert('Enter a valid amount.');
+    return;
+  }
+  if(a>wallet){
+    alert('Insufficient demo balance. Add demo funds first.');
+    return;
+  }
+  wallet-=a;
+  tx.push({
+    name,
+    amount:a,
+    status:'Simulated - not delivered',
+    date:new Date().toLocaleString()
+  });
+  save();
+  alert('Demo request recorded. No real service was purchased.');
+}
+
 function authMessage(s){document.getElementById('authStatus').textContent=s}
 function setUser(user){
   if(!user){
