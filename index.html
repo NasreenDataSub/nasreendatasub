@@ -199,6 +199,99 @@ function buy(name){
     });
 }
 
+if(name === 'Data'){
+    const old = document.getElementById('serviceModal');
+    if(old) old.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'serviceModal';
+
+    modal.innerHTML = `
+    <div style="position:fixed;inset:0;background:#f1f5ff;z-index:9999;padding:25px 18px;overflow:auto;font-family:Arial,sans-serif">
+
+    <button id="closeData" style="border:0;background:#e5edff;color:#0755bd;padding:12px 20px;border-radius:10px">← Back</button>
+
+    <h2 style="color:#14213d;margin-top:30px">Data Purchase</h2>
+    <p style="color:#718096">Enter your data details below</p>
+
+    <form id="dataForm" style="background:white;padding:22px;border-radius:22px;margin-top:25px">
+
+    <label>Network</label>
+    <select id="dataNetwork" required style="width:100%;padding:17px;margin:10px 0 22px;border:1px solid #d5dce8;border-radius:12px;font-size:17px">
+    <option value="">Select Network</option>
+    <option>MTN</option>
+    <option>Airtel</option>
+    <option>Glo</option>
+    <option>9mobile</option>
+    </select>
+
+    <label>Phone Number</label>
+    <input id="dataPhone" type="tel" maxlength="11" required placeholder="Enter 11-digit phone number" style="width:100%;box-sizing:border-box;padding:17px;margin:10px 0 22px;border:1px solid #d5dce8;border-radius:12px;font-size:17px">
+
+    <label>Data Plan</label>
+    <select id="dataPlan" required style="width:100%;padding:17px;margin:10px 0 25px;border:1px solid #d5dce8;border-radius:12px;font-size:17px">
+    <option value="">Select Data Plan</option>
+    <option value="150">500MB - ₦150</option>
+    <option value="300">1GB - ₦300</option>
+    <option value="600">2GB - ₦600</option>
+    <option value="900">3GB - ₦900</option>
+    <option value="1500">5GB - ₦1,500</option>
+    <option value="3000">10GB - ₦3,000</option>
+    </select>
+
+    <button type="submit" style="width:100%;padding:18px;background:#0755bd;color:white;border:0;border-radius:13px;font-size:18px;font-weight:bold">
+    Continue
+    </button>
+
+    </form>
+    </div>`;
+
+    document.body.appendChild(modal);
+
+    document.getElementById('closeData').onclick = () => modal.remove();
+
+    document.getElementById('dataForm').addEventListener('submit',function(e){
+        e.preventDefault();
+
+        const network = document.getElementById('dataNetwork').value;
+        const phone = document.getElementById('dataPhone').value.trim();
+        const plan = document.getElementById('dataPlan');
+        const amount = Number(plan.value);
+        const bundle = plan.options[plan.selectedIndex].text;
+
+        if(!/^[0-9]{11}$/.test(phone)){
+            alert('Enter a valid 11-digit phone number.');
+            return;
+        }
+
+        if(amount > wallet){
+            alert('Insufficient demo balance.');
+            return;
+        }
+
+        if(!confirm('Confirm Data Purchase?\nNetwork: '+network+'\nPhone: '+phone+'\nPlan: '+bundle)){
+            return;
+        }
+
+        wallet -= amount;
+
+        tx.push({
+            name:'Data - '+network+' - '+bundle+' - '+phone,
+            amount:amount,
+            status:'Demo - Not Delivered',
+            date:new Date().toLocaleString()
+        });
+
+        save();
+        modal.remove();
+        render();
+
+        alert('Demo request recorded. No real data was purchased.');
+    });
+
+    return;
+}
+
 function authMessage(s){document.getElementById('authStatus').textContent=s}
 function setUser(user){
   if(!user){
